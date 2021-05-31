@@ -1,29 +1,46 @@
 package com.calculator;
 
-import sun.rmi.runtime.Log;
+import com.calculator.model.buttons.*;
 
-import java.util.Scanner;
-import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import com.calculator.enums.Buttons;
 
 public class Main implements ActionListener {
     JFrame frame;
     JTextField textField;
+    // Array
     JButton[] numberButtons = new JButton[10];
     JButton[] functionButtons = new JButton[9];
     JButton addButton,subButton,mulButton,divButton;
     JButton decButton, equButton, delButton, clrButton, negButton;
     JPanel panel;
     Font myFont = new Font("Arial", Font.BOLD,30);
+
+    // types
     double num1 = 0;
     double num2 = 0;
     double result = 0;
     char operator; // primitive
 
+    // HashMap
+    Map <Integer,String> buttonsMap = new HashMap<Integer, String>();
+
     // constructor
     Main() {
+        // hashmap elements
+        buttonsMap.put(1, "+");
+        buttonsMap.put(2, "-");
+        buttonsMap.put(3, "*");
+        buttonsMap.put(4, "/");
+        buttonsMap.put(5, ".");
+        buttonsMap.put(6, "=");
+        buttonsMap.put(9, "(-)");
+
+
         frame = new JFrame("Calculator");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);   // close program
         frame.setSize(420, 550);
@@ -36,15 +53,15 @@ public class Main implements ActionListener {
         textField.setEditable(false);
 
         // Buttons
-        addButton = new JButton("+");
-        subButton = new JButton("-");
-        mulButton = new JButton("*");
-        divButton = new JButton("/");
-        decButton = new JButton(".");
-        equButton = new JButton("=");
-        delButton = new JButton("Del");
-        clrButton = new JButton("Clr");
-        negButton = new JButton("(-)");
+        addButton = new JButton(buttonsMap.get(1));
+        subButton = new JButton(buttonsMap.get(2));
+        mulButton = new JButton(buttonsMap.get(3));
+        divButton = new JButton(buttonsMap.get(4));
+        decButton = new JButton(buttonsMap.get(5));
+        equButton = new JButton(buttonsMap.get(6));
+        delButton = new JButton(Buttons.DELETE.getValue());  //  custom method
+        clrButton = new JButton(Buttons.valueOfLabel("Clear").getValue()); // cache
+        negButton = new JButton(Buttons.NEGATIVE.toString());   // override method
 
         functionButtons[0] = addButton;
         functionButtons[1] = subButton;
@@ -95,9 +112,6 @@ public class Main implements ActionListener {
         panel.add(equButton);
         panel.add(divButton);
 
-
-
-
         frame.add(panel);
         frame.add(negButton);
         frame.add(delButton);
@@ -108,12 +122,6 @@ public class Main implements ActionListener {
 
     public static void main(String[] args) {
         Main calc = new Main();
-/**
- * TO DO
- * map
- * ENUM
- * inheritance (enum) + Override
- */
     }
 
     @Override
@@ -124,29 +132,38 @@ public class Main implements ActionListener {
             }
         }
 
-        if(actionEvent.getSource() == decButton) {
-            textField.setText(textField.getText().concat("."));
-        }
         if(actionEvent.getSource() == addButton) {
-            num1 = Double.parseDouble(textField.getText());
-            operator = '+';
+            AdditionButton additionButton = new AdditionButton(textField);
+            num1 = additionButton.getNum();
+            operator = additionButton.getOperator();
             textField.setText("");
         }
+
         if(actionEvent.getSource() == subButton) {
-            num1 = Double.parseDouble(textField.getText());
-            operator = '-';
+            SubtractionButton subtractionButton = new SubtractionButton(textField);
+            num1 = subtractionButton.getNum();
+            operator = subtractionButton.getOperator();
             textField.setText("");
         }
         if(actionEvent.getSource() == mulButton) {
-            num1 = Double.parseDouble(textField.getText());
-            operator = '*';
+            MultiplicationButton multiplicationButton = new MultiplicationButton(textField);
+            num1 = multiplicationButton.getNum();
+            operator = multiplicationButton.getOperator();
             textField.setText("");
         }
         if(actionEvent.getSource() == divButton) {
-            num1 = Double.parseDouble(textField.getText());
-            operator = '/';
+            DivisionButton divisionButton = new DivisionButton(textField);
+            num1 = divisionButton.getNum();
+            operator = divisionButton.getOperator();
             textField.setText("");
         }
+
+        if(actionEvent.getSource() == decButton) {
+            DecimalButton decimalButton = new DecimalButton();
+            decimalButton.setText(textField);
+        }
+
+
         if(actionEvent.getSource() == equButton) {
             num2 = Double.parseDouble(textField.getText());
             switch(operator) {
@@ -168,19 +185,16 @@ public class Main implements ActionListener {
         }
 
         if (actionEvent.getSource() == clrButton) {
-            textField.setText("");
+            ClearButton clearButton = new ClearButton();
+            clearButton.setText(textField);
         }
         if (actionEvent.getSource() == delButton) {
-            String temp = textField.getText();
-            textField.setText("");
-            for(int i =0; i < temp.length() -1; i++) {
-                textField.setText(textField.getText() + temp.charAt(i));
-            }
+            DeleteButton deleteButton = new DeleteButton();
+            deleteButton.setText(textField);
         }
         if(actionEvent.getSource() == negButton) {
-            double temp = Double.parseDouble(textField.getText());
-            temp *= -1;
-            textField.setText(String.valueOf(temp));
+            NegativeButton negativeButton = new NegativeButton();
+            negativeButton.setText(textField);
         }
     }
 }
